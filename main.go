@@ -1,11 +1,21 @@
 package main
 
 import(
-  "io"
   "log"
   "net/http"
   "os"
+  "encoding/json"
+  "fmt"
 )
+
+type Response struct {
+  RouteDesc string
+  StopDesc string
+  List []struct {
+    Sched string
+    Est string
+  }
+}
 
 func main() {
   if len(os.Args) < 2 {
@@ -25,7 +35,19 @@ func main() {
     log.Fatal(resp.Status)
   }
 
-  _, err = io.Copy(os.Stdout, resp.Body)
+  r := new(Response)
+  err = json.NewDecoder(resp.Body).Decode(r)
+  fmt.Println("Route:", r.RouteDesc)
+  fmt.Println("Stop:", r.StopDesc)
+  if len(r.List) > 0 {
+    for i, list := range r.List {
+      fmt.Printf("Trip #%d\n", i+1)
+      fmt.Printf("\tScheduled Time: %s\n", list.Sched)
+      fmt.Printf("\tEstimated Time: %s\n", list.Est)
+    }
+  } else {
+    fmt.Printf("No available trips found")
+  }
 
   if err != nil {
     log.Fatal(err)
