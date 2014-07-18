@@ -17,10 +17,29 @@ type Response struct {
   }
 }
 
-func main() {
-  if len(os.Args) < 2 {
+func printResults(r Response) {
+  fmt.Println("Route:", r.RouteDesc)
+  fmt.Println("Stop:", r.StopDesc)
+  if len(r.List) > 0 {
+    for i, list := range r.List {
+      fmt.Printf("Trip #%d\n", i+1)
+      fmt.Printf("\tScheduled Time: %s\n", list.Sched)
+      fmt.Printf("\tEstimated Time: %s\n", list.Est)
+    }
+  } else {
+    fmt.Printf("No available trips found")
+  }
+}
+
+func checkArgs(args []string) {
+  if len(args) < 2 {
     log.Fatal("Usage: cm-nextbus StopID")
   }
+}
+
+func main() {
+
+  checkArgs(os.Args)
 
   stopID := os.Args[1]
 
@@ -37,20 +56,10 @@ func main() {
 
   r := new(Response)
   err = json.NewDecoder(resp.Body).Decode(r)
-  fmt.Println("Route:", r.RouteDesc)
-  fmt.Println("Stop:", r.StopDesc)
-  if len(r.List) > 0 {
-    for i, list := range r.List {
-      fmt.Printf("Trip #%d\n", i+1)
-      fmt.Printf("\tScheduled Time: %s\n", list.Sched)
-      fmt.Printf("\tEstimated Time: %s\n", list.Est)
-    }
-  } else {
-    fmt.Printf("No available trips found")
-  }
 
   if err != nil {
     log.Fatal(err)
   }
 
+  printResults(*r)
 }
