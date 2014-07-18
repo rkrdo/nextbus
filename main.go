@@ -27,7 +27,7 @@ func printResults(r Response) {
       fmt.Printf("\tEstimated Time: %s\n", list.Est)
     }
   } else {
-    fmt.Printf("No available trips found")
+    fmt.Println("No available trips found")
   }
 }
 
